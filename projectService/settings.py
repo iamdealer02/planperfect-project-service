@@ -11,7 +11,14 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+from pymongo import MongoClient
 
+# USE .env file
+# python-dotenv
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -20,7 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-m$og3y8vk$js87w6u-@r&79vc2ai$c7a6r5yy!y27d&2_ox1q+'
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -73,13 +80,15 @@ WSGI_APPLICATION = 'projectService.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
+# MongoDB connection settings
+MONGO_DB_NAME = 'microservices_project'
+MONGO_DB_USER = 'user'
+MONGO_DB_PASSWORD = 'password'
+MONGO_DB_HOST = 'db'
+MONGO_DB_PORT = 27017
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+client = MongoClient(f'mongodb://{MONGO_DB_USER}:{MONGO_DB_PASSWORD}@{MONGO_DB_HOST}:{MONGO_DB_PORT}/')
+mongo_db = client[MONGO_DB_NAME]
 
 
 # Password validation
