@@ -58,6 +58,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'projectService.utils.middleware.JWTAuthenticationMiddleware',
 ]
 
 ROOT_URLCONF = 'projectService.urls'
@@ -136,4 +137,4 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-ALLOWED_HOSTS  = ['*']
+CORS_ORIGIN_ALLOW_ALL = True
