@@ -38,3 +38,16 @@ class ProjectViewSet(viewsets.ViewSet):
             return Response(Project.from_dict(project).to_dict(), status=status.HTTP_201_CREATED)
         except Exception as e:
             return Response({'error': f'Failed to create project: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
+        
+    # delete method
+    def destroy(self, request, pk=None):
+        try:
+            if not ObjectId.is_valid(pk):
+                return Response({'error': 'Invalid project id'}, status=status.HTTP_400_BAD_REQUEST)
+            result = collection.delete_one({'_id': ObjectId(pk)})
+            if result.deleted_count == 0:
+                return Response({'error': 'Project not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'message': 'Project deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+        except Exception as e:
+            return Response({'error': f'Failed to delete project: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
+
