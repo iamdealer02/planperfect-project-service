@@ -38,3 +38,14 @@ class ProjectViewSet(viewsets.ViewSet):
             return Response(Project.from_dict(project).to_dict(), status=status.HTTP_201_CREATED)
         except Exception as e:
             return Response({'error': f'Failed to create project: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
+
+    def update(self, request, pk=None):
+        if not ObjectId.is_valid(pk):
+            return Response({'error': 'Invalid project id'}, status=status.HTTP_400_BAD_REQUEST)
+        data = request.data
+        try:
+            collection.update_one({'_id': ObjectId(pk)}, {'$set': data})
+            project = collection.find_one({'_id': ObjectId(pk)})
+            return Response(Project.from_dict(project).to_dict())
+        except Exception as e:
+            return Response({'error': f'Failed to update project: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
