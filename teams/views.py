@@ -84,6 +84,29 @@ class TeamViewSet(viewsets.ViewSet):
             return Response({'error': f'Error retrieving team members: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
 
 
+# all the projects the user is in, the teans he belog to
+    def list(self, request):
+        if not hasattr(request, 'user') or not request.user:
+            return Response({'error': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+        try:
+            # You can access payload data from the request.user attribute
+            user_id = request.user.get('user_id')
+            # for this user_id, get all the projects
+            team_member = teams_collection.find({'member_id': user_id})
+            # find the project details for the team
+            team_project = []
+            for team in team_member:
+                project = projects_collection.find_one({'_id': team['project_id']})
+                team['project'] = project
+                team_project.append(team)
+            
+            response = [Team.from_dict(team).to_dict() for team in team_project]
+            return Response(response)
+        except Exception as e:
+            return Response({'error': f'Unauthorized: {str(e)}'}, status=status.HTTP_401_UNAUTHORIZED)
+        
+
+  
         urls = super().get_urls()
         custom_urls = [
             path('<pk>/update-member/<mid>/', self.update_member, name='team-update-member'),
