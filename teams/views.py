@@ -59,6 +59,30 @@ class TeamViewSet(viewsets.ViewSet):
         except Exception as e:
             return Response({'error': f'Error creating team: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
 
+    def retrieve(self, request, pk=None):
+        # Retrieve all team members by project_id
+        if not hasattr(request, 'user') or not request.user:
+            return Response({'error': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+        try:
+            if not ObjectId.is_valid(pk):
+                return Response({'error': 'Invalid project id'}, status=status.HTTP_400_BAD_REQUEST)
+            # user is the owner of the project neither the team member
+            user_id = request.user.get('user_id')
+            user_owned_project = projects_collection.find_one({'_id': ObjectId(pk), 'user_id': user_id})
+            is_team_member = teams_collection.find_one({'project_id': pk, 'member_id': user_id})
+            if user_owned_project is None and is_team_member is None:
+                return Response({'error': 'You are not the owner of the project or a team member'}, status=status.HTTP_403_FORBIDDEN)
+            # Finding all the team members in the project
+            team_members = list(teams_collection.find({'project_id': pk}))
+            if not team_members:
+                return Response({'error': 'No team members found for this project'}, status=status.HTTP_404_NOT_FOUND)
+
+            # Convert each team member document to a Team object and then to a dictionary
+            team_members = [Team.from_dict(member).to_dict() for member in team_members]
+            return Response(team_members, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'error': f'Error retrieving team members: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
+
 
         urls = super().get_urls()
         custom_urls = [
