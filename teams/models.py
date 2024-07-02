@@ -1,15 +1,16 @@
 # because this is Mongo model without orms we do not need models from django
-
+from bson import ObjectId 
 class Team:
     # add team member to ur project
     def __init__(self, project_id, member_id, role):
+        # shoud be object id
         self.project_id = project_id
         self.member_id = member_id
         self.role = role
     
     def to_dict(self):
         return {
-            'project_id': self.project_id,
+            'project_id': str(self.project_id),
             'member_id': self.member_id,
             'role': self.role
         }
