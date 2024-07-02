@@ -60,6 +60,7 @@ class TeamViewSet(viewsets.ViewSet):
             return Response({'error': f'Error creating team: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
 
     def retrieve(self, request, pk=None):
+    
         # Retrieve all team members by project_id
         if not hasattr(request, 'user') or not request.user:
             return Response({'error': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -106,10 +107,41 @@ class TeamViewSet(viewsets.ViewSet):
             return Response({'error': f'Unauthorized: {str(e)}'}, status=status.HTTP_401_UNAUTHORIZED)
         
 
-  
+    @action(detail=True, methods=['put'], url_path='update-member/(?P<mid>[^/.]+)')
+    def update_member(self, request, pk=None, mid=None):
+        if not hasattr(request, 'user') or not request.user:
+            return Response({'error': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+        try:
+            user_id = request.user.get('user_id')
+            print(pk, mid)  # `mid` is just a string
+
+            # Check if pk (project_id) is a valid ObjectId
+            if not ObjectId.is_valid(pk):
+                return Response({'error': 'Invalid project id'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Check if user is the owner of the project
+            user_owned_project = projects_collection.find_one({'_id': ObjectId(pk), 'user_id': user_id})
+            if user_owned_project is None:
+                return Response({'error': 'You are not the owner of the project'}, status=status.HTTP_403_FORBIDDEN)
+            
+            # Update the team member
+            result = teams_collection.update_one(
+                {'project_id': pk, 'member_id': mid},
+                {'$set': request.data}
+            )
+            if result.matched_count == 0:
+                return Response({'error': 'Team member not found'}, status=status.HTTP_404_NOT_FOUND)
+            
+            team = teams_collection.find({'project_id': pk})
+            response = [Team.from_dict(member).to_dict() for member in team]
+            return Response(response)
+        except Exception as e:
+            return Response({'error': f'Error updating team: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
+
+    def get_urls(self):
         urls = super().get_urls()
         custom_urls = [
             path('<pk>/update-member/<mid>/', self.update_member, name='team-update-member'),
-            path('<pk>/delete-member/<mid>/', self.delete_member, name='team-delete-member'),
+           
         ]
         return urls + custom_urls
