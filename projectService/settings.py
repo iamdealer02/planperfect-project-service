@@ -32,7 +32,12 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'userservice-backend-1',
+    'projectservice-backend-1',
+    'coreservice-backend-1',
+    'localhost',
+]
 
 
 # Application definition

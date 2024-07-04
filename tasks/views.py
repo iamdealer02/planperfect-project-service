@@ -118,7 +118,8 @@ class TaskViewSet(viewsets.ViewSet):
             if user_team is None and user_owned_project is None:
                 return Response({'error': 'You are not a member of the project'}, status=status.HTTP_403_FORBIDDEN)
            
-            tasks = list(tasks_collection.find({'project_id': ObjectId(project_id)}))
+            tasks = list(tasks_collection.find({'project_id': project_id}))
+
             result = [Task.from_dict(task).to_dict() for task in tasks]
             return Response(result, status=status.HTTP_200_OK)
         except Exception as e:
