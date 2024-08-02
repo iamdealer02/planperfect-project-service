@@ -98,7 +98,7 @@ class ProjectViewSet(viewsets.ViewSet):
             result = collection.delete_one({'_id': ObjectId(pk), 'user_id': user_id})
             if result.deleted_count == 0:
                 return Response({'error': 'Project not found'}, status=status.HTTP_404_NOT_FOUND)
-            return Response({'message': 'Project deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+            return Response({'message': 'Project deleted successfully'}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error': f'Failed to delete project: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
 

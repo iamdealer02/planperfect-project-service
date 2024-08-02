@@ -157,7 +157,7 @@ class TeamViewSet(viewsets.ViewSet):
             
             team = teams_collection.find({'project_id': pk})
             response = [Team.from_dict(member).to_dict() for member in team]
-            return Response(response)
+            return Response(response, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error': f'Error deleting team: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
 
